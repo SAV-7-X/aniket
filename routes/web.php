@@ -8,6 +8,22 @@ use App\Livewire\Auth\{Login, Register};
 use App\Livewire\{Billing, Dashboard, Profile, Users,Product, Category, Order, 
     Customer, Review, Coupon, User, 
     Report, Setting};
+    use App\Livewire\Frontend\{
+        Index,
+        Shop,
+        About,
+        Service,
+        Blog,
+        Contact,
+        Cart,
+        Support,
+        Knowledge,
+        LiveChat,
+        Jobs,
+        Team,
+        Leadership,
+        Privacy
+    };
 
 // Livewire Admin Routes
 // use App\Livewire\{
@@ -51,6 +67,25 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 });
 
 
-Route::fallback(function () {
-    return redirect('/login');
+// Route::fallback(function () {
+//     return redirect('/login');
+// });
+
+Route::prefix('/')->group(function () {
+    Route::get('', Index::class)->name('home');
+    Route::get('shop', Shop::class)->name('shop');
+    Route::get('about', About::class)->name('about');
+    Route::get('services', Service::class)->name('services');
+    Route::get('blog', Blog::class)->name('blog');
+    Route::get('contact', Contact::class)->name('contact');
+    Route::get('cart', Cart::class)->name('cart');
+
+    // Footer Links
+    Route::get('support', Support::class)->name('support');
+    Route::get('knowledge', Knowledge::class)->name('knowledge');
+    Route::get('livechat', LiveChat::class)->name('livechat');
+    Route::get('jobs', Jobs::class)->name('jobs');
+    Route::get('team', Team::class)->name('team');
+    Route::get('leadership', Leadership::class)->name('leadership');
+    Route::get('privacy-policy', Privacy::class)->name('privacy');
 });

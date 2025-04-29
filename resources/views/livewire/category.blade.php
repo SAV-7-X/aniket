@@ -291,13 +291,13 @@
     @include('modals.category')
     @include('scripts.category')
     @include('styles.users')
-    
+ 
     <!-- Toast Container with Enhanced UI -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="toastContainer" class="toast-container"></div>
     </div>
     
     <!-- JavaScript for handling modals and notifications -->
-
+    
 </div>
 
