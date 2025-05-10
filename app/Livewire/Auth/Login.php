@@ -43,13 +43,14 @@ class Login extends Component
             //     ->log('User logged in');
 
             // Redirect to dashboard or intended page
-            if($this->email == 'aniket_admin@gmail.com')
+            if($this->email == 'aniket_admin@gmail.com' && $this->role == 'admin')
             {
             return redirect()->intended(RouteServiceProvider::HOME);
             }
             else
             {
-                return response()->json(['message'=>'User Logged in']);
+                // return response()->json(['message'=>'User Logged in']);
+                return redirect()->to('/');
             }
         }
 

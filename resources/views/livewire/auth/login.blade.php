@@ -85,7 +85,7 @@
                 
                 <div class="form-footer login-animation">
                     <p class="text-muted">
-                        Don't have an account? <a href="">Create Account</a>
+                        Don't have an account? <a href="{{route('register')}}" wire:navigate>Create Account</a>
                     </p>
                 </div>
             </div>

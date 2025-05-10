@@ -15,22 +15,49 @@
             </a>
             
             <!-- Right Side - User Actions -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-8">
                 <!-- Cart Button -->
                 <a href="/cart" class="text-navy hover:text-light-navy relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <span class="absolute -top-1 -right-1 bg-wood text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">0</span>
+                    <span class="absolute -top-1 -right-1 bg-wood text-white rounded-full w-4 h-4 flex items-center justify-center text-xs" id="cartNum">{{$productCount}}</span>
                 </a>
                 
                 <!-- Conditional Login/Profile Button -->
                 {{-- <template x-if="!userLoggedIn">
                    
                 </template> --}}
+                @if ($isLoggedIn)
+                <div class="relative inline-block text-left">
+                    <a href="#" onclick="toggleDropdown(event)" class="flex items-center space-x-2 px-4 py-2 text-navy hover:text-light-navy font-medium transition-colors duration-200">
+                        <span>{{ $user_name }}</span>
+                        <i id="arrow-icon" class="fas fa-chevron-down transition-transform duration-200"></i>
+                    </a>
+                
+                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-sm shadow-md z-50">
+                        <a href="/profile" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition">
+                            <i class="fas fa-user mr-3 text-navy"></i> Profile
+                        </a>
+                        <a href="/settings" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition">
+                            <i class="fas fa-cog mr-3 text-navy"></i> Settings
+                        </a>
+                        <form method="POST" wire:submit.prevent='logout'>
+                            @csrf
+                            <button type="submit" class="w-full text-left flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-red-100 hover:text-red-600 transition">
+                                <i class="fas fa-sign-out-alt mr-3 text-red-500"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+           
+                
+                @else
                 <a href="/login" class="bg-wood hover:bg-light-wood text-white px-4 py-2 rounded-md transition duration-300">
                     Login
                 </a>
+                @endif
                 {{-- <template x-if="userLoggedIn">
                     <a href="/profile" class="text-navy hover:text-light-navy">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,6 +132,27 @@
             window.Alpine.store('auth', {
                 userLoggedIn: userLoggedIn
             });
+        }
+    });
+</script>
+<script>
+    function toggleDropdown(event) {
+        event.preventDefault();
+        const dropdown = document.getElementById('user-dropdown');
+        dropdown.classList.toggle('hidden');
+        
+        // Optional: rotate arrow icon
+        const icon = document.getElementById('arrow-icon');
+        icon.classList.toggle('rotate-180');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('user-dropdown');
+        const trigger = event.target.closest('a');
+        if (!dropdown.contains(event.target) && !trigger) {
+            dropdown.classList.add('hidden');
+            document.getElementById('arrow-icon').classList.remove('rotate-180');
         }
     });
 </script>

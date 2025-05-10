@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Middleware\Admin;
 
 // Livewire Authentication Routes
 use App\Livewire\Auth\{Login, Register};
@@ -36,17 +37,16 @@ use App\Livewire\{Billing, Dashboard, Profile, Users,Product, Category, Order,
 Route::get('/login', Login::class)->name('login');
 Route::get('/register', Register::class)->name('register');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(Admin::class)->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/billing', Billing::class)->name('billing');
-    Route::get('/profile', Profile::class)->name('profile');
     Route::get('/users', Users::class)->name('users');
 
     // Logout Route
     Route::post('/logout', function () {
         Auth::logout();
         session()->flush();
-        return redirect('/login');
+        return redirect('/');
     })->name('logout');
 });
 
@@ -79,6 +79,8 @@ Route::prefix('/')->group(function () {
     Route::get('blog', Blog::class)->name('blog');
     Route::get('contact', Contact::class)->name('contact');
     Route::get('cart', Cart::class)->name('cart');
+    Route::get('/profile', Profile::class)->name('profile');
+
 
     // Footer Links
     Route::get('support', Support::class)->name('support');

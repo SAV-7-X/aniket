@@ -76,56 +76,73 @@ class ProductComponent extends Component
     
     public function addToCart($productId)
     {
-        // Get product details from database
+        if (!auth()->check()) {
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'message' => 'You must be logged in to add products to cart.'
+            ]);
+            return redirect()->route('login');
+        }
+    
+        // Fetch product
         $product = DB::table('products')
             ->where('id', $productId)
             ->where('is_active', 1)
-            ->first(['id', 'name', 'price', 'image', 'stock']);
-        
+            ->first(['id', 'name', 'price', 'image', 'stock' , 'discount_price' ]);
+    
         if (!$product) {
-            $this->dispatchBrowserEvent('notify', [
+            $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => 'Product not found!'
+                'message' => 'Product not found or inactive.'
             ]);
             return;
         }
-        
-        // Check if product is in stock
+    
         if ($product->stock <= 0) {
-            $this->dispatchBrowserEvent('notify', [
+            $this->dispatch('notify', [
                 'type' => 'error',
                 'message' => 'Product is out of stock!'
             ]);
             return;
         }
-        
-        // Add to cart session
-        $cart = session()->get('cart', []);
-        
-        // Check if product already exists in cart
-        if(isset($cart[$productId])) {
-            $cart[$productId]['quantity']++;
-        } else {
-            $cart[$productId] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price,
-                'image' => $product->image,
-                'quantity' => 1
-            ];
+    
+        // Optional: Check if already in cart
+        $existing = DB::table('carts')
+            ->where('user_id', auth()->id())
+            ->where('product_id', $productId)
+            ->first();
+    
+        if ($existing) {
+            $this->dispatch('notify', [
+                'type' => 'info',
+                'message' => 'Product already in your cart.',
+                
+            ]);
+            return;
         }
-        
-        session()->put('cart', $cart);
-        
-        // Emit event to update cart count in header
-        $this->emit('cartUpdated');
-        
-        // Show notification
-        $this->dispatchBrowserEvent('notify', [
-            'type' => 'success',
-            'message' => 'Product added to cart!'
+    
+        // Add to cart
+        DB::table('carts')->insert([
+            'user_id'     => auth()->id(),
+            'product_id'  => $productId,
+            'total_value' => $product->discount_price,
+            'discount_value' => $product->discount_price,
+            'quantity'=> 1,
+            'created_at'  => now(),
+            'updated_at'  => now()
         ]);
+    
+        // Success message
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => 'Product added to cart!',
+            'addToCart'=>true
+        ]);
+        // $this->dispatch('addToCart')->to(Nav::class);
+        $this->dispatch('addToCart')->to(\App\Livewire\Frontend\Nav::class);
+
     }
+    
 
     public function render()
     {

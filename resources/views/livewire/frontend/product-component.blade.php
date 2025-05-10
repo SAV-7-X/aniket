@@ -1,4 +1,4 @@
-<div class="bg-white py-20" x-data="{ activeCategory: '{{ $activeCategory }}' }">
+<div class="bg-white py-20">
     <div class="container mx-auto px-4">
         <!-- Section Header -->
         <div class="text-center mb-16" data-aos="fade-up">
@@ -12,17 +12,15 @@
         <!-- Category Filters -->
         <div class="flex flex-wrap justify-center gap-3 mb-12" data-aos="fade-up" data-aos-delay="200">
             <button 
-                @click="activeCategory = 'all'; $wire.setCategory('all')" 
-                :class="activeCategory === 'all' ? 'bg-wood text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" 
-                class="px-6 py-2 rounded-full font-medium transition duration-300">
+                wire:click="setCategory('all')" 
+                class="px-6 py-2 rounded-full font-medium transition duration-300 {{ $activeCategory === 'all' ? 'bg-wood text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                 All
             </button>
 
             @foreach($categories as $category)
                 <button 
-                    @click="activeCategory = '{{ $category->slug }}'; $wire.setCategory('{{ $category->slug }}')" 
-                    :class="activeCategory === '{{ $category->slug }}' ? 'bg-wood text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" 
-                    class="px-6 py-2 rounded-full font-medium transition duration-300">
+                    wire:click="setCategory('{{ $category->slug }}')" 
+                    class="px-6 py-2 rounded-full font-medium transition duration-300 {{ $activeCategory === $category->slug ? 'bg-wood text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                     {{ $category->name }}
                 </button>
             @endforeach
@@ -31,8 +29,8 @@
         <!-- Products Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             @foreach($products as $product)
+                @if($activeCategory === 'all' || $activeCategory === strtolower(str_replace(' ', '-', $product->category)))
                 <div 
-                    x-show="activeCategory === 'all' || activeCategory === '{{ strtolower(str_replace(' ', '-', $product->category)) }}'" 
                     class="group relative bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                     data-aos="fade-up" data-aos-delay="{{ 300 + (100 * $loop->index) }}"
                 >
@@ -93,6 +91,7 @@
                         </a>
                     </div>
                 </div>
+                @endif
             @endforeach
         </div>
         
@@ -107,28 +106,14 @@
         </div>
     </div>
 
-    <!-- Notification System -->
-    <div
-        x-data="{ 
-            show: false,
-            message: '',
-            type: 'success'
-        }"
-        @notify.window="show = true; message = $event.detail.message; type = $event.detail.type; setTimeout(() => { show = false }, 3000)"
-        x-show="show"
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 transform translate-x-full"
-        x-transition:enter-end="opacity-100 transform translate-x-0"
-        x-transition:leave="transition ease-in duration-300"
-        x-transition:leave-start="opacity-100 transform translate-x-0"
-        x-transition:leave-end="opacity-0 transform translate-x-full"
-        class="fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm"
-        :class="type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' : 'bg-red-100 border-l-4 border-red-500 text-red-700'"
-    >
+    <!-- Notification System (using Livewire browser events instead of Alpine) -->
+    <div class="fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm notification-container hidden">
         <div class="flex items-center">
             <div class="ml-3">
-                <p class="text-sm font-medium" x-text="message"></p>
+                <p class="text-sm font-medium notification-message"></p>
             </div>
         </div>
     </div>
+
+ 
 </div>
